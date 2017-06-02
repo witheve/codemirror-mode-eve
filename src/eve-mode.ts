@@ -11,47 +11,48 @@ function asPatterns<T extends {}>(patterns:T):{[name in keyof T]:CodeMirror.Simp
 let patterns = asPatterns({
   start_search: {
     regex: /^\s*search/,
-    //sol: true,
-    indent: true,
     token: "keyword.section.search",
+    indent: true,
     next: "search",
   },
   start_action: {
     regex: /^\s*(bind|commit)/,
-    //sol: true,
-    indent: true,
     token: "keyword.section.action",
+    indent: true,
     next: "action"
   },
 
   start_record: {
     regex: /\[/,
+    token: "syntax",
     indent: true,
-    push: "record"
+    push: "record",
   },
   stop_record: {
     regex: /\]/,
+    token: "syntax",
     dedent: true,
     pop: true
   },
 
   start_function: {
     regex: /([a-zA-Z][a-zA-Z0-9\-_\?!\/]*)(\[)/,
+    token: ["identifier.function", "syntax"],
     indent: true,
     push: "record",
-    token: ["identifier.function", ""],
   },
 
   start_not: {
     regex: /(not)(\()/,
+    token: ["keyword.not", "syntax"],
     indent: true,
     push: "not",
-    token: ["keyword.not", ""]
   },
   stop_not: {
     regex: /\)/,
+    token: "syntax",
     dedent: true,
-    pop: true
+    pop: true,
   },
 
   start_comment: {regex: /\/\*.*/, token: "comment", push: "comment"},
@@ -62,8 +63,8 @@ let patterns = asPatterns({
   stop_string: {regex: /(?:(?!\\))"/, token: "literal.string", pop: true},
   string_inner: {regex: /(?:[^"\\{]|\\.)+/, token: "literal.string"},
 
-  start_interpolation: {regex: /(?:(?!\\)){{/, push: "interpolation"},
-  stop_interpolation: {regex: /(?:(?!\\))}}/, pop: true},
+  start_interpolation: {regex: /(?:(?!\\)){{/, token: "syntax", push: "interpolation"},
+  stop_interpolation: {regex: /(?:(?!\\))}}/, token: "syntax", pop: true},
 
   if_then_else: {
     regex: /if|then|else/,
@@ -77,6 +78,7 @@ let patterns = asPatterns({
   infix: {regex: /-|\+|\/|\*/, token: "operator.infix"},
   filter: {regex: /<|<=|>|>=|!=/, token: "operator.filter"},
   update: {regex: /\+=|-=|:=|<-/, token: "operator.update"},
+  misc_syntax: {regex: /[:.]/, token: "syntax"}
 });
 
 function compose(...states:CodeMirror.SimpleModePattern[][]) {
@@ -118,6 +120,7 @@ let mode = CodeMirror.defineSimpleMode("eve", {
       patterns.start_record,
       patterns.tag,
       patterns.filter,
+      patterns.misc_syntax
     ],
     expr
   ),
@@ -129,7 +132,8 @@ let mode = CodeMirror.defineSimpleMode("eve", {
       patterns.start_record,
       patterns.start_not,
       patterns.if_then_else,
-      patterns.filter
+      patterns.filter,
+      patterns.misc_syntax
     ],
     expr
   ),
@@ -140,6 +144,7 @@ let mode = CodeMirror.defineSimpleMode("eve", {
       patterns.stop_not,
       patterns.start_record,
       patterns.filter,
+      patterns.misc_syntax
     ],
     expr
   ),
@@ -152,8 +157,9 @@ let mode = CodeMirror.defineSimpleMode("eve", {
   action: compose(
     comment,
     [
-    patterns.start_record,
-    patterns.update,
+      patterns.start_record,
+      patterns.update,
+      patterns.misc_syntax
     ],
     expr
   ),
@@ -170,6 +176,7 @@ let mode = CodeMirror.defineSimpleMode("eve", {
     [
       patterns.stop_interpolation,
       patterns.start_record,
+      patterns.misc_syntax
     ],
     expr
   )
