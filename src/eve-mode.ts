@@ -10,13 +10,13 @@ function asPatterns<T extends {}>(patterns:T):{[name in keyof T]:CodeMirror.Simp
 
 let patterns = asPatterns({
   start_search: {
-    regex: /^\s*search/,
+    regex: /search/,
     token: "keyword.section.search",
     indent: true,
     next: "search",
   },
   start_action: {
-    regex: /^\s*(bind|commit)/,
+    regex: /(bind|commit)/,
     token: "keyword.section.action",
     indent: true,
     next: "action"
