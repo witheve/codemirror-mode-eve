@@ -8,6 +8,7 @@ function asPatterns<T extends {}>(patterns:T):{[name in keyof T]:CodeMirror.Simp
   return patterns as any;
 }
 
+let _identifierPattern = /[^\s|\[\](){}"',.:=#]+/;
 let patterns = asPatterns({
   start_search: {
     regex: /search/,
@@ -55,10 +56,6 @@ let patterns = asPatterns({
     pop: true,
   },
 
-  start_comment: {regex: /\/\*.*/, token: "comment", push: "comment"},
-  stop_comment: {regex: /.*\*\//, token: "comment", pop: true},
-  comment_inner: {regex: /.+?/, token: "comment"},
-
   start_string: {regex: /(?:(?!\\))"/, token: "literal.string", push: "string"},
   stop_string: {regex: /(?:(?!\\))"/, token: "literal.string", pop: true},
   string_inner: {regex: /(?:[^"\\{]|\\.)+/, token: "literal.string"},
@@ -71,10 +68,10 @@ let patterns = asPatterns({
     token: "keyword.if"
   },
 
-  number: {regex: /0x[a-f\d]+|[-+]?(?:\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/i, token: "literal.number"},
-  comment: {regex: /(?:\/\/.*)|(?:\/\*.*\*\/)/, token: "comment"},
-  tag: {regex: /#[a-zA-Z0-9\-_\?!\/]+/, token: "tag"},
-  identifier: {regex: /[a-zA-Z][a-zA-Z0-9\-_\?!\/]*/, token: "identifier"},
+  number: {regex: /[-+]?(?:\.\d+|\d+\.?\d*)/, token: "literal.number"},
+  comment: {regex: /\/\/.*/, token: "comment"},
+  identifier: {regex: _identifierPattern, token: "identifier"},
+  tag: {regex: new RegExp("#" + _identifierPattern.source), token: "tag"},
   infix: {regex: /-|\+|\/|\*/, token: "operator.infix"},
   filter: {regex: /<|<=|>|>=|!=/, token: "operator.filter"},
   update: {regex: /\+=|-=|:=|<-/, token: "operator.update"},
@@ -89,7 +86,6 @@ function compose(...states:CodeMirror.SimpleModePattern[][]) {
   return result;
 }
 
-let comment = [patterns.comment, patterns.start_comment];
 let expr = [
   patterns.infix,
   patterns.start_string,
@@ -101,21 +97,17 @@ let expr = [
 let mode = CodeMirror.defineSimpleMode("eve", {
   meta: {
     dontIndentStates: ["comment"],
-    lineComment: "//",
-    blockCommentStart: "/*",
-    blockCommentEnd: "*/"
+    lineComment: "//"
   },
-  start: compose(
-    comment,
-    [
-      patterns.start_search,
-      patterns.start_action
-    ]
-  ),
+  start: [
+    patterns.comment,
+    patterns.start_search,
+    patterns.start_action
+  ],
 
   record: compose(
-    comment,
     [
+      patterns.comment,
       patterns.stop_record,
       patterns.start_record,
       patterns.tag,
@@ -126,8 +118,8 @@ let mode = CodeMirror.defineSimpleMode("eve", {
   ),
 
   search: compose(
-    comment,
     [
+      patterns.comment,
       patterns.start_action,
       patterns.start_record,
       patterns.start_not,
@@ -139,8 +131,8 @@ let mode = CodeMirror.defineSimpleMode("eve", {
   ),
 
   not: compose(
-    comment,
     [
+      patterns.comment,
       patterns.stop_not,
       patterns.start_record,
       patterns.filter,
@@ -149,14 +141,9 @@ let mode = CodeMirror.defineSimpleMode("eve", {
     expr
   ),
 
-  comment: [
-    patterns.stop_comment,
-    patterns.comment_inner
-  ],
-
   action: compose(
-    comment,
     [
+      patterns.comment,
       patterns.start_record,
       patterns.update,
       patterns.misc_syntax
@@ -172,8 +159,8 @@ let mode = CodeMirror.defineSimpleMode("eve", {
   ],
 
   interpolation: compose(
-    comment,
     [
+      patterns.comment,
       patterns.stop_interpolation,
       patterns.start_record,
       patterns.misc_syntax
