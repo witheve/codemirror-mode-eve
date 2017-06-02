@@ -1,0 +1,32 @@
+{
+  "name": "codemirror-mode-eve",
+  "version": "0.0.1",
+  "description": "A Simple Eve language mode for Codemirror",
+  "main": "build/eve-mode.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "codemirror",
+    "addon",
+    "mode",
+    "eve",
+    "language"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/witheve/codemirror-mode-eve"
+  },
+  "bugs": {
+    "url": "https://github.com/witheve/codemirror-mode-eve/issues"
+  },
+
+  "author": "Eve Team",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/codemirror": "0.0.40"
+  },
+  "dependencies": {
+    "codemirror": "^5.26.0"
+  }
+}
