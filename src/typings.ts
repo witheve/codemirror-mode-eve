@@ -27,7 +27,7 @@ declare module "codemirror" {
   }
 
   interface SimpleModeStates {
-    meta?: {dontIndentStates:string[], lineComment:string, [key:string]: any}
+    meta?: {dontIndentStates?:string[], lineComment?:string, [key:string]: any}
     [state:string]: SimpleModePattern[]|any
   }
 
