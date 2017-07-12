@@ -1,7 +1,12 @@
 import * as CodeMirror from "codemirror";
+import "codemirror/addon/mode/simple";
 
-if(!CodeMirror["defineSimpleMode"]) throw new Error("Please ensure that the simple-mode addon is loaded prior to eve-mode.");
-if(!CodeMirror.modes["gfm"]) console.warn("Codemirror eve mode was designed to be embedded within gfm mode. Please ensure gfm mode is loaded prior to eve-mode.");
+// Optional but recommended if authoring Eve documents rather than individual blocks.
+// import "codemirror/addon/mode/overlay";
+// import "codemirror/addon/mode/multiplex";
+// import "codemirror/mode/gfm/gfm";
+// import "codemirror/mode/markdown/markdown";
+// import "codemirror/mode/javascript/javascript";
 
 // Just some type silliness to tell TS to preserve the static keys but type their values as Patterns.
 function asPatterns<T extends {}>(patterns:T):{[name in keyof T]:CodeMirror.SimpleModePattern} {
