@@ -4,6 +4,8 @@
   "description": "A Simple Eve language mode for Codemirror",
   "main": "build/eve-mode.js",
   "scripts": {
+    "build": "tsc",
+    "postinstall": "postinstall-build build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -23,9 +25,11 @@
   "author": "Eve Team",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/codemirror": "0.0.40"
+    "@types/codemirror": "0.0.40",
+    "typescript": "^2.4.1"
   },
   "dependencies": {
-    "codemirror": "^5.27.2"
+    "codemirror": "^5.27.2",
+    "postinstall-build": "^5.0.1"
   }
 }
