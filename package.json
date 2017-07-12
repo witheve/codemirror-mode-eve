@@ -20,13 +20,12 @@
   "bugs": {
     "url": "https://github.com/witheve/codemirror-mode-eve/issues"
   },
-
   "author": "Eve Team",
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/codemirror": "0.0.40"
   },
   "dependencies": {
-    "codemirror": "^5.26.0"
+    "codemirror": "^5.27.2"
   }
 }
