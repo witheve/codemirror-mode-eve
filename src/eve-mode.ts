@@ -19,13 +19,14 @@ let patterns = asPatterns({
     regex: /search/,
     token: "keyword.section.search",
     indent: true,
-    next: "search",
+    push: "search",
   },
   start_action: {
     regex: /(bind|commit)/,
     token: "keyword.section.action",
     indent: true,
-    next: "action"
+    dedent: true,
+    push: "action"
   },
 
   start_record: {
@@ -56,7 +57,7 @@ let patterns = asPatterns({
   },
   stop_not: {
     regex: /\)/,
-    token: "syntax",
+    token: "syntax.end-not",
     dedent: true,
     pop: true,
   },
@@ -68,10 +69,9 @@ let patterns = asPatterns({
   start_interpolation: {regex: /(?:(?!\\)){{/, token: "syntax", push: "interpolation"},
   stop_interpolation: {regex: /(?:(?!\\))}}/, token: "syntax", pop: true},
 
-  if_then_else: {
-    regex: /if|then|else/,
-    token: "keyword.if"
-  },
+  if: {regex: /if|else if/, token: "keyword.if", indent: true},
+  then: {regex: /then/, token: "keyword.if", dedent: true},
+  else: {regex: /else/, token: "keyword.if"},
 
   number: {regex: /[-+]?(?:\.\d+|\d+\.?\d*)/, token: "literal.number"},
   comment: {regex: /\/\/.*/, token: "comment"},
@@ -80,7 +80,7 @@ let patterns = asPatterns({
   infix: {regex: /-|\+|\/|\*/, token: "operator.infix"},
   filter: {regex: /<|<=|>|>=|!=/, token: "operator.filter"},
   update: {regex: /\+=|-=|:=|<-/, token: "operator.update"},
-  misc_syntax: {regex: /[:.]/, token: "syntax"}
+  misc_syntax: {regex: /[:.,]/, token: "syntax.misc"}
 });
 
 function compose(...states:CodeMirror.SimpleModePattern[][]) {
@@ -99,9 +99,15 @@ let expr = [
   patterns.number
 ];
 
+let union_or_choose = [
+  patterns.if,
+  patterns.then,
+  patterns.else
+];
+
 let mode = CodeMirror.defineSimpleMode("eve", {
   meta: {
-    dontIndentStates: ["comment"],
+    //dontIndentStates: ["comment"],
     lineComment: "//"
   },
   start: [
@@ -125,10 +131,13 @@ let mode = CodeMirror.defineSimpleMode("eve", {
   search: compose(
     [
       patterns.comment,
+      patterns.tag,
       patterns.start_action,
       patterns.start_record,
       patterns.start_not,
-      patterns.if_then_else,
+    ],
+    union_or_choose,
+    [
       patterns.filter,
       patterns.misc_syntax
     ],
@@ -150,7 +159,13 @@ let mode = CodeMirror.defineSimpleMode("eve", {
     [
       patterns.comment,
       patterns.start_record,
+      // @FIXME: begin hack for whitespace syntax
+      patterns.start_search,
+      patterns.start_action,
+      patterns.filter,
+      // @FIXME: end hack for whitespace syntax
       patterns.update,
+      patterns.tag,
       patterns.misc_syntax
     ],
     expr
